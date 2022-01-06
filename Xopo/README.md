@@ -1,6 +1,6 @@
-# 1 Dockerfile
-# 2 ecs.tf
-# 3 Jenkinsfile.btc
+# 1 Please refer Dockerfile
+# 2 Please refer ecs.tf
+# 3  Please refer Jenkinsfile.btc
 
 # 4.
 
@@ -15,7 +15,7 @@ The pillars of the AWS Well-Architected Framework
 
 
 # 5.  
-Open main.tf
+Please refer main.tf
 
 # 6.
  How would you provision runtime parameters such as database connection strings, credentials into Docker containers so they can be used in different environments (development, staging, production)? Please take into account that parameters might change often as the development team adds new options or changes existing ones.
