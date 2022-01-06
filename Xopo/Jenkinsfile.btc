@@ -1,0 +1,56 @@
+
+pipeline {
+    environment {
+        DOCKER_NETWORK = ''
+    }
+    options {
+        skipDefaultCheckout()
+        buildDiscarder(logRotator(numToKeepStr: '20'))
+        timestamps()
+    }
+    agent any
+    stages {
+        stage('Stop same job builds') {
+            agent { label 'master' }
+            steps {
+                script {
+                    def scmVars = checkout scm
+                    // need this for develop->master PR cases
+                    // CHANGE_BRANCH is not defined if this is a branch build
+                    try {
+                        scmVars.CHANGE_BRANCH_LOCAL = scmVars.CHANGE_BRANCH
+                    }
+                    catch (MissingPropertyException e) {
+                    }
+                    if (scmVars.GIT_LOCAL_BRANCH != "master" && scmVars.CHANGE_BRANCH_LOCAL != "master") {
+                        def builds = load ".jenkinsci/cancel-builds-same-job.groovy"
+                        builds.cancelSameJobBuilds()
+                    }
+                }
+            }
+        }
+        stage('ECR Login') {
+            agent { label ' btc-build-agent' }
+            steps {
+                script {
+                    def scmVars = checkout scm
+                    // can also be input as Jenkins env var
+                    env.region = us-east-2
+                    env.account_id=xxxxxxxxxxx
+                    sh 'aws ecr get-login-password --region env.region | docker login --username AWS --password-stdin env.aws_account_id.dkr.ecr.region.amazonaws.com'
+
+
+        stage('Build and push docker images') {
+            agent { label 'btc-build-agent' }
+            steps {
+                script {
+                    sh './gradlew docker'
+                    sh './gradlew dockerPush --parallel'
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
